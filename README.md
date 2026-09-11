@@ -1,378 +1,254 @@
 # AI Code Reviewer & Optimizer
 
-An AI-powered development tool that automatically analyzes Python code, detects problems, refactors the code, and generates documentation using a sequential multi-agent workflow.
+An AI-powered developer tool that analyzes Python code, identifies security and quality issues, refactors the code, and generates technical documentation through a sequential multi-agent workflow.
 
-The system is designed to help developers improve code quality, security, readability, maintainability, and documentation without manually reviewing every part of the code.
-
----
-
-# 1. Project Overview
-
-Developers often write code quickly while building features or testing ideas.
-
-Because of this, code may contain:
-
-* Security vulnerabilities
-* SQL injection risks
-* Hardcoded credentials
-* Poor error handling
-* Unnecessary or duplicated code
-* PEP8 violations
-* Performance issues
-* Bad naming practices
-* Missing documentation
-* Maintainability problems
-
-Manual code review can take significant time and small issues can easily be missed.
-
-This project solves that problem by using multiple specialized AI agents that review the code sequentially.
-
-Instead of asking one AI model to perform every task in a single prompt, each agent is responsible for one specific task.
+The application combines a **React + TypeScript frontend**, **FastAPI backend**, **LangGraph orchestration**, **LangChain**, and **Google Gemini** to provide an automated code-review pipeline.
 
 ---
 
-# 2. Main Goal
+## 1. Project Overview
 
-The main goal is to build a system where a user can:
+Developers often write code quickly while building features, testing ideas, or working under deadlines. This can introduce issues such as:
 
-1. Paste Python code
+- Security vulnerabilities
+- SQL injection risks
+- Hardcoded credentials
+- Poor exception handling
+- Unused or duplicated code
+- PEP8 violations
+- Maintainability problems
+- Performance issues
+- Missing documentation
+- Poor naming or structure
 
-or
+Manual code review can take time and smaller issues may be overlooked.
 
+This project addresses that problem using a **sequential multi-agent pipeline**, where each AI agent performs one specialized task instead of relying on one large general-purpose prompt.
+
+---
+
+## 2. Main Goal
+
+The application allows a user to either:
+
+1. Paste Python code directly into the web interface
 2. Upload a `.py` file
 
-The system will then automatically:
+The system then processes the code through the following pipeline:
 
 ```text
-Receive Python Code
-        ↓
-Analyze Code
-        ↓
-Detect Problems
-        ↓
-Generate Audit Report
-        ↓
-Refactor Code
-        ↓
-Generate Documentation
-        ↓
-Return Final Results
-```
-
-The user will be able to compare the original code with the improved version and understand what problems were found.
-
----
-
-# 3. Core Architecture
-
-The application will use a sequential multi-agent architecture.
-
-The main workflow will be:
-
-```text
-User
-  ↓
-Frontend
-  ↓
-FastAPI Backend
-  ↓
-LangGraph Workflow
-  ↓
+Python Code
+    ↓
 Scanner Agent
-  ↓
+    ↓
+Structured Audit Report
+    ↓
 Refactor Agent
-  ↓
+    ↓
+Improved Python Code
+    ↓
 Documentation Agent
-  ↓
-Final Result
-  ↓
-Frontend
+    ↓
+Generated Documentation
+    ↓
+Frontend Results
 ```
 
-Each agent receives information from the previous stage and updates the shared application state.
+The user can then review:
+
+- Overall code-quality score
+- Security score
+- Performance score
+- Maintainability score
+- Style score
+- Detected issues
+- Recommendations
+- Original code
+- Refactored code
+- Generated documentation
 
 ---
 
-# 4. Technology Stack
+## 3. Current Technology Stack
 
-## Frontend
+### Frontend
 
-The frontend will be built separately using a modern frontend framework such as:
+- React
+- TypeScript
+- Vite
+- Oxlint
+- CSS
+
+### Backend
+
+- Python
+- FastAPI
+- Uvicorn
+- Pydantic
+- python-multipart
+
+### AI / Orchestration
+
+- LangGraph
+- LangChain
+- Google Gemini
+- `langchain-google-genai`
+
+### Environment
+
+- Python virtual environment
+- `.env` configuration
+- Git / GitHub
+
+---
+
+## 4. Current Architecture
 
 ```text
-React
-or
-Next.js
+                        USER
+                          |
+                          v
+              React + TypeScript Frontend
+                          |
+              +-----------+-----------+
+              |                       |
+              v                       v
+        Paste Python Code        Upload .py File
+              |                       |
+              v                       v
+       POST /api/analyze      POST /api/analyze-file
+              |                       |
+              +-----------+-----------+
+                          |
+                          v
+                    FastAPI Backend
+                          |
+                          v
+                  Input Validation
+                          |
+                          v
+                   Analyzer Service
+                          |
+                          v
+                    LangGraph Flow
+                          |
+                          v
+                    Scanner Agent
+                          |
+                          v
+                    Audit Report
+                          |
+                          v
+                   Refactor Agent
+                          |
+                          v
+                   Refactored Code
+                          |
+                          v
+                 Documentation Agent
+                          |
+                          v
+                    Final Response
+                          |
+                          v
+                       Frontend
 ```
-
-The frontend will communicate with the backend through REST APIs.
-
-Its main responsibilities will be:
-
-* Code input
-* `.py` file upload
-* Displaying analysis progress
-* Showing audit results
-* Showing optimized code
-* Showing generated documentation
-* Downloading results
 
 ---
 
-## Backend
+## 5. Multi-Agent Workflow
 
-Backend technology:
+The current pipeline contains three agents.
 
-```text
-FastAPI
-```
+### Scanner Agent
 
-FastAPI will handle:
+The Scanner Agent reviews the original Python code without modifying it.
 
-* API requests
-* File uploads
-* Code validation
-* Calling the LangGraph workflow
-* Returning results to the frontend
-* Error handling
+It checks for issues such as:
 
----
+- Security vulnerabilities
+- SQL injection
+- Hardcoded passwords or API keys
+- Unsafe coding patterns
+- Logical bugs
+- Runtime risks
+- Poor exception handling
+- PEP8 issues
+- Unused imports or variables
+- Duplicate code
+- Maintainability problems
+- Performance concerns
 
-## AI Orchestration
-
-The multi-agent workflow will be managed using:
-
-```text
-LangGraph
-```
-
-LangGraph will determine which agent runs first, what information is passed between agents, and when the workflow finishes.
-
----
-
-## LLM Integration
-
-The AI agents will use:
-
-```text
-LangChain
-+
-Google Gemini
-```
-
-LangChain will provide the integration between our Python application and the Gemini model.
-
----
-
-## Main Language
-
-```text
-Python
-```
-
-The first version of this project will analyze Python code only.
-
-Support for JavaScript, TypeScript, Java, or other languages can be added later.
-
----
-
-# 5. Multi-Agent Workflow
-
-The first version contains three main agents.
-
-```text
-Scanner Agent
-     ↓
-Refactor Agent
-     ↓
-Documentation Agent
-```
-
-Each agent has a separate responsibility.
-
----
-
-# 6. Scanner Agent
-
-The Scanner Agent is the first agent in the workflow.
-
-Its responsibility is to analyze the original code.
-
-It should not modify the code.
-
-The Scanner Agent will check for:
-
-* Syntax problems
-* Possible logical bugs
-* Security vulnerabilities
-* SQL injection
-* Hardcoded passwords
-* Hardcoded API keys
-* Poor exception handling
-* Unused imports
-* Duplicate logic
-* Poor variable names
-* Poor function names
-* PEP8 violations
-* Performance problems
-* Maintainability issues
-* Unsafe coding practices
-
-Example input:
-
-```python
-password = "admin123"
-
-user = input("Username: ")
-
-query = f"SELECT * FROM users WHERE username = '{user}'"
-```
-
-Possible Scanner Agent output:
-
-```text
-Issue 1
-
-Type: Security
-Severity: High
-Problem: SQL Injection
-Location: SQL query
-Reason: User input is directly inserted into the SQL query.
-Recommendation: Use parameterized SQL queries.
-
-Issue 2
-
-Type: Security
-Severity: High
-Problem: Hardcoded password
-Location: password variable
-Recommendation: Store secrets in environment variables.
-```
-
-The Scanner Agent will create an audit report that will be passed to the next agent.
-
----
-
-# 7. Structured Audit Report
-
-Instead of returning only unstructured text, the scanner should eventually return structured information.
+The Scanner Agent returns a structured JSON audit report.
 
 Example:
 
 ```json
 {
-  "score": 60,
+  "score": 85,
+  "security_score": 80,
+  "performance_score": 90,
+  "maintainability_score": 88,
+  "style_score": 92,
+  "summary": "The code is generally well structured but contains security and maintainability concerns.",
   "issues": [
     {
       "type": "security",
       "severity": "high",
-      "line": 5,
+      "line": 12,
       "title": "SQL Injection",
-      "description": "User input is directly inserted into the SQL query.",
+      "description": "User input is directly interpolated into a SQL query.",
       "recommendation": "Use parameterized queries."
     }
   ]
 }
 ```
 
-This makes it easier for the frontend to display reports professionally.
+### Refactor Agent
 
-For example:
-
-```text
-Code Quality Score
-
-60 / 100
-
-Security         45 / 100
-Performance      80 / 100
-Maintainability  65 / 100
-Code Style       75 / 100
-```
-
----
-
-# 8. Refactor Agent
-
-The Refactor Agent runs after the Scanner Agent.
-
-It receives:
+The Refactor Agent receives:
 
 ```text
 Original Code
 +
-Audit Report
+Scanner Audit Report
 ```
 
-Its responsibility is to improve the code based on the detected problems.
+Its job is to:
 
-The Refactor Agent should:
+- Fix real security problems
+- Fix code-quality issues
+- Improve readability
+- Improve maintainability
+- Follow PEP8
+- Reduce unnecessary duplication
+- Improve error handling
+- Improve naming
+- Improve performance where appropriate
+- Preserve intended behavior whenever possible
 
-* Fix security problems
-* Fix possible bugs
-* Improve readability
-* Follow PEP8
-* Improve naming
-* Remove unnecessary code
-* Reduce duplication
-* Improve error handling
-* Improve maintainability
-* Improve performance when appropriate
+The Refactor Agent returns improved Python source code.
 
-The most important rule is:
+### Documentation Agent
 
-```text
-Do not unnecessarily change the original functionality.
-```
+The Documentation Agent receives the refactored code and generates developer-focused documentation including:
 
-The refactored program should behave like the original program unless the original behavior itself contains a bug.
+- Project overview
+- Features
+- Requirements
+- Installation instructions
+- Usage instructions
+- Code structure
+- Function descriptions
+- Class descriptions
+- Security notes
+- Maintenance notes
 
 ---
 
-# 9. Documentation Agent
+## 6. LangGraph State
 
-The Documentation Agent runs after the Refactor Agent.
-
-It receives the improved code.
-
-Its responsibilities include generating:
-
-* Function docstrings
-* Class docstrings
-* Code explanations
-* Project description
-* Installation instructions
-* Usage instructions
-* Dependencies
-* README documentation
-* Important implementation notes
-
-Example:
-
-```python
-def get_user(user_id: int):
-    """
-    Retrieve a user from the database.
-
-    Args:
-        user_id: Unique identifier of the user.
-
-    Returns:
-        User information if the user exists.
-    """
-```
-
-The Documentation Agent may also generate a README file for the analyzed project.
-
----
-
-# 10. LangGraph State Management
-
-All agents need to share information.
-
-For this purpose, LangGraph will use a shared state.
-
-The state will initially contain:
+The workflow shares data through a TypedDict state.
 
 ```python
 class AgentState(TypedDict):
@@ -382,155 +258,98 @@ class AgentState(TypedDict):
     documentation: str
 ```
 
-The data moves through the workflow like this:
-
-```text
-original_code
-      ↓
-Scanner Agent
-      ↓
-audit_report
-      ↓
-Refactor Agent
-      ↓
-refactored_code
-      ↓
-Documentation Agent
-      ↓
-documentation
-```
-
----
-
-# 11. LangGraph Workflow
-
-The LangGraph pipeline will look like this:
+The state moves through the graph in this order:
 
 ```text
 START
   ↓
-Scanner Agent
-  ↓
-Refactor Agent
-  ↓
-Documentation Agent
-  ↓
-END
-```
-
-Internally:
-
-```text
-START
-  |
-  v
 scanner_agent
-  |
-  v
+  ↓
 refactor_agent
-  |
-  v
+  ↓
 docs_agent
-  |
-  v
+  ↓
 END
 ```
 
-The graph will execute each agent in sequence.
-
 ---
 
-# 12. User Input
+## 7. Backend API
 
-The application will support two main input methods.
+The FastAPI backend currently exposes four endpoints.
 
-## Method 1 — Paste Code
+### Root
 
-The user can directly paste Python code into the frontend code editor.
-
-Example:
-
-```python
-def calculate(a,b):
- return a+b
+```http
+GET /
 ```
 
----
+Returns a simple API status message.
 
-## Method 2 — Upload Python File
+### Health Check
 
-The user can upload a file such as:
-
-```text
-main.py
+```http
+GET /health
 ```
 
-The frontend sends the file to FastAPI.
-
-FastAPI reads the file content and passes it to LangGraph.
-
----
-
-# 13. Backend API Flow
-
-The frontend may send requests to an endpoint such as:
-
-```text
-POST /api/analyze
-```
-
-Example request concept:
+Returns:
 
 ```json
 {
-  "code": "def hello(): ..."
+  "status": "healthy"
 }
 ```
 
-Or the API may accept a `.py` file.
+### Analyze Pasted Code
 
-FastAPI will then call the LangGraph workflow.
-
----
-
-# 14. Backend Processing
-
-The internal backend process will be:
-
-```text
-Request received
-      ↓
-Validate input
-      ↓
-Extract Python code
-      ↓
-Create AgentState
-      ↓
-Run LangGraph
-      ↓
-Scanner Agent
-      ↓
-Refactor Agent
-      ↓
-Documentation Agent
-      ↓
-Collect Results
-      ↓
-Return JSON Response
+```http
+POST /api/analyze
 ```
 
+Example request:
+
+```json
+{
+  "code": "def add(a, b):\n    return a + b"
+}
+```
+
+### Analyze Uploaded Python File
+
+```http
+POST /api/analyze-file
+```
+
+Content type:
+
+```text
+multipart/form-data
+```
+
+The uploaded file is validated before analysis.
+
+Current file rules:
+
+- `.py` files only
+- Maximum file size: 1 MB
+- UTF-8 text
+- Empty files are rejected
+
 ---
 
-# 15. Example Final API Response
-
-The backend may return:
+## 8. Example API Response
 
 ```json
 {
   "success": true,
   "original_code": "...",
   "audit_report": {
-    "score": 72,
+    "score": 82,
+    "security_score": 75,
+    "performance_score": 95,
+    "maintainability_score": 85,
+    "style_score": 90,
+    "summary": "...",
     "issues": []
   },
   "refactored_code": "...",
@@ -540,433 +359,608 @@ The backend may return:
 
 ---
 
-# 16. Frontend Results
+## 9. Frontend
 
-The frontend can show four main sections.
+The frontend is built with **React + TypeScript + Vite**.
+
+Current functionality includes:
+
+- Paste-code mode
+- `.py` upload mode
+- Large Python code editor
+- File-selection interface
+- Analyze & Optimize button
+- Loading state
+- Error handling
+- Estimated analysis time
+- Countdown timer
+- Actual completion time
+- AI pipeline progress section
+- Code-quality score cards
+- Security / performance / maintainability / style scores
+- Audit summary
+- Issue cards
+- Severity badges
+- Original-code tab
+- Refactored-code tab
+- Documentation tab
+- Copy-to-clipboard controls
+- Responsive dark developer-tool UI
+
+The frontend communicates with the backend through:
 
 ```text
-Original Code
-
-Audit Report
-
-Optimized Code
-
-Documentation
-```
-
-A tab-based interface could look like:
-
-```text
-------------------------------------------------
-
-Original | Audit | Optimized | Documentation
-
-------------------------------------------------
+POST /api/analyze
+POST /api/analyze-file
 ```
 
 ---
 
-# 17. Agent Progress Tracking
+## 10. Analysis Timer
 
-The frontend should also show which agent is currently running.
+When the user clicks **Analyze & Optimize**, the frontend records the start time.
+
+During analysis it displays:
+
+```text
+Estimated time
+~00:45
+
+Time remaining
+00:44
+00:43
+00:42
+...
+```
+
+When the backend returns the final response, the timer stops and the UI displays the actual completion duration.
 
 Example:
 
 ```text
-Analyzing your code...
+Completed in 37.4 sec
+```
 
-✓ File received
+If the estimated countdown reaches zero before the backend finishes, the request continues and the UI informs the user that the analysis is taking longer than expected.
 
+> Note: the timer is a frontend estimate. Actual response time depends on model latency, code size, network conditions, and API availability.
+
+---
+
+## 11. Agent Progress Tracking
+
+The frontend currently displays the three pipeline stages:
+
+```text
+Scanner Agent
+Refactor Agent
+Documentation Agent
+```
+
+At the moment, the backend returns the final response only after the complete LangGraph workflow finishes.
+
+Because of this, the frontend cannot yet know the exact real-time status of each individual agent.
+
+Current progress labels are therefore UI-level approximations.
+
+True real-time agent progress can later be implemented using:
+
+- Server-Sent Events (SSE), or
+- WebSockets
+
+A future version could display:
+
+```text
 ✓ Scanner Agent completed
-
 ● Refactor Agent running
-
 ○ Documentation Agent waiting
 ```
 
-Later, real-time updates can be implemented using:
-
-```text
-WebSocket
-or
-Server-Sent Events
-```
-
-For the first version, normal API responses are enough.
+based on actual backend events.
 
 ---
 
-# 18. Downloadable Results
+## 12. Error Handling
 
-The application should eventually allow users to download:
+The frontend displays backend errors in a dedicated error panel.
 
-```text
-optimized.py
+Common errors include:
 
-audit-report.json
-
-README.md
-```
-
-Later, all outputs can be packaged into:
-
-```text
-optimized-project.zip
-```
-
----
-
-# 19. Proposed Project Structure
-
-```text
-ai-code-reviewer/
-│
-├── backend/
-│   │
-│   ├── main.py
-│   ├── requirements.txt
-│   ├── .env
-│   │
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── scanner.py
-│   │   ├── refactor.py
-│   │   └── docs.py
-│   │
-│   ├── graph/
-│   │   ├── __init__.py
-│   │   ├── state.py
-│   │   └── workflow.py
-│   │
-│   ├── services/
-│   │   ├── __init__.py
-│   │   └── llm.py
-│   │
-│   ├── prompts/
-│   │   ├── __init__.py
-│   │   ├── scanner_prompt.py
-│   │   ├── refactor_prompt.py
-│   │   └── docs_prompt.py
-│   │
-│   ├── schemas/
-│   │   ├── __init__.py
-│   │   └── analysis.py
-│   │
-│   └── utils/
-│       ├── __init__.py
-│       └── file_handler.py
-│
-├── frontend/
-│
-├── .gitignore
-└── README.md
-```
-
----
-
-# 20. Folder Responsibilities
-
-## `agents/`
-
-Contains the AI agents.
-
-```text
-scanner.py
-refactor.py
-docs.py
-```
-
-Each file contains one specialized agent.
-
----
-
-## `graph/`
-
-Contains LangGraph-related code.
-
-```text
-state.py
-workflow.py
-```
-
-`state.py` defines the shared state.
-
-`workflow.py` connects all the agents.
-
----
-
-## `services/`
-
-Contains external service integrations.
-
-For example:
-
-```text
-llm.py
-```
-
-This file initializes the Gemini model.
-
-All agents can reuse the same LLM configuration.
-
----
-
-## `prompts/`
-
-Contains agent prompts.
-
-This keeps prompts separate from application logic.
+### Gemini Rate Limit / Quota
 
 Example:
 
 ```text
-scanner_prompt.py
-refactor_prompt.py
-docs_prompt.py
+429 RESOURCE_EXHAUSTED
 ```
 
----
+This means the configured Gemini API key or model has reached its current quota or rate limit.
 
-## `schemas/`
-
-Contains Pydantic models used by FastAPI and structured AI responses.
-
-For example:
+Since one full analysis currently runs three agents, one user analysis normally requires approximately three model calls:
 
 ```text
-AnalysisRequest
-AnalysisResponse
-Issue
-AuditReport
+Scanner Agent       → 1 request
+Refactor Agent      → 1 request
+Documentation Agent → 1 request
 ```
 
----
+Future improvements can include:
 
-## `utils/`
+- Model fallback
+- Gemini API-key rotation
+- Retry logic
+- Better quota-aware error messages
 
-Contains helper functions.
+### Temporary Gemini Availability
 
-For example:
+The model may sometimes return:
 
 ```text
-Reading uploaded Python files
-Validating file extensions
-Cleaning model output
+503 UNAVAILABLE
 ```
+
+This usually means the model is temporarily experiencing high demand.
 
 ---
 
-# 21. Development Order
+## 13. Important Security Rule
 
-The project should be built step by step.
+Uploaded code is treated as **text only**.
 
-We will not create everything at once.
+The application currently does not automatically execute user-provided Python code.
 
-The recommended order is:
-
-```text
-README.md
-      ↓
-graph/state.py
-      ↓
-services/llm.py
-      ↓
-prompts/scanner_prompt.py
-      ↓
-agents/scanner.py
-      ↓
-Test Scanner
-      ↓
-prompts/refactor_prompt.py
-      ↓
-agents/refactor.py
-      ↓
-Test Scanner + Refactor
-      ↓
-prompts/docs_prompt.py
-      ↓
-agents/docs.py
-      ↓
-graph/workflow.py
-      ↓
-Test Full LangGraph
-      ↓
-FastAPI Schemas
-      ↓
-FastAPI Routes
-      ↓
-File Upload Support
-      ↓
-Frontend
-```
-
----
-
-# 22. Git Workflow
-
-We will use:
-
-```text
-One File = One Commit
-```
-
-For example:
-
-```bash
-git add README.md
-git commit -m "docs: add project architecture and workflow"
-git push
-```
-
-Then:
-
-```bash
-git add backend/graph/state.py
-git commit -m "feat: add LangGraph agent state"
-git push
-```
-
-Then the next file.
-
-This will keep the GitHub history clean and easy to understand.
-
----
-
-# 23. First Version Scope
-
-The first version should stay simple.
-
-It will support:
-
-* Python only
-* One `.py` file at a time
-* Pasted Python code
-* Scanner Agent
-* Refactor Agent
-* Documentation Agent
-* Gemini
-* LangChain
-* LangGraph
-* FastAPI
-* React/Next.js frontend
-* Audit report
-* Refactored code
-* Documentation
-
----
-
-# 24. Future Features
-
-After the first version works, more advanced features can be added.
-
-Possible additions include:
-
-* Multi-file projects
-* ZIP uploads
-* GitHub repository scanning
-* JavaScript support
-* TypeScript support
-* Java support
-* Automatic tests
-* Code execution sandbox
-* Ruff integration
-* Bandit security scanning
-* Pytest integration
-* Before/after diff viewer
-* Security score
-* Performance score
-* Code-quality score
-* Agent retries
-* Multiple Gemini API keys
-* Automatic model fallback
-* GitHub pull-request generation
-* Downloadable optimized project
-* Database history
-* User authentication
-* Previous scan history
-
----
-
-# 25. Important Safety Rule
-
-Uploaded code must initially be treated as text.
-
-The backend should not automatically execute arbitrary user code.
-
-The first version will:
+The first version only performs:
 
 ```text
 Read Code
 Analyze Code
 Refactor Code
-Document Code
+Generate Documentation
 ```
 
-but it will not execute uploaded Python programs directly.
-
-If automatic execution or testing is added later, it should use a secure isolated sandbox.
+If code execution or automatic testing is introduced later, it should run inside a secure isolated sandbox.
 
 ---
 
-# 26. Final System Flow
+## 14. Environment Variables
 
-The complete first-version workflow will be:
+The backend environment file is located at:
 
 ```text
-                    USER
-                      |
-                      v
-           Paste Code / Upload .py
-                      |
-                      v
-                  FRONTEND
-                      |
-                      v
-                 FASTAPI
-                      |
-                      v
-               Input Validation
-                      |
-                      v
-                 LANGGRAPH
-                      |
-                      v
-              SCANNER AGENT
-                      |
-                      v
-                Audit Report
-                      |
-                      v
-              REFACTOR AGENT
-                      |
-                      v
-               Optimized Code
-                      |
-                      v
-                DOCS AGENT
-                      |
-                      v
-                Documentation
-                      |
-                      v
-                 FASTAPI
-                      |
-                      v
-                  FRONTEND
-                      |
-          +-----------+-----------+
-          |           |           |
-          v           v           v
-        Audit      Optimized     README
-        Report       Code
+backend/.env
+```
+
+Example:
+
+```env
+GOOGLE_API_KEY=your_google_api_key_here
+```
+
+Never commit the real `.env` file to GitHub.
+
+An example file can be committed instead:
+
+```text
+backend/.env.example
+```
+
+Example:
+
+```env
+GOOGLE_API_KEY=your_google_api_key_here
 ```
 
 ---
 
-# 27. Project Objective
+## 15. Project Structure
 
-The final objective is to create a developer tool that can take raw Python code and transform it into a cleaner, safer, more maintainable, and better documented version using specialized AI agents.
+```text
+ai-code-reviewer/
+│
+├── backend/
+│   ├── agents/
+│   │   ├── scanner.py
+│   │   ├── refactor.py
+│   │   └── docs.py
+│   │
+│   ├── graph/
+│   │   ├── state.py
+│   │   └── workflow.py
+│   │
+│   ├── prompts/
+│   │   ├── scanner_prompt.py
+│   │   ├── refactor_prompt.py
+│   │   └── docs_prompt.py
+│   │
+│   ├── schemas/
+│   │   └── analysis.py
+│   │
+│   ├── services/
+│   │   ├── llm.py
+│   │   └── analyzer.py
+│   │
+│   ├── utils/
+│   │   └── file_handler.py
+│   │
+│   ├── .env
+│   ├── .env.example
+│   ├── main.py
+│   └── test_workflow.py
+│
+├── frontend/
+│   ├── public/
+│   │
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AnalysisProgress.tsx
+│   │   │   ├── ScoreCards.tsx
+│   │   │   └── ResultsTabs.tsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── api.ts
+│   │   │
+│   │   ├── App.tsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.tsx
+│   │
+│   ├── .oxlintrc.json
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+│
+├── .gitignore
+├── README.md
+├── requirement.txt
+└── venv/
+```
 
-Instead of functioning as a simple AI chatbot, the application behaves like an automated software engineering pipeline.
+---
 
-Each agent has one responsibility, LangGraph controls the workflow, FastAPI provides the backend API, and the frontend provides the developer interface.
+## 16. Backend Dependencies
+
+The root dependency file currently contains the Python backend dependencies.
+
+```txt
+fastapi[standard]
+uvicorn[standard]
+langgraph
+langchain
+langchain-google-genai
+python-dotenv
+pydantic
+python-multipart
+```
+
+Install them with:
+
+```bash
+pip install -r requirement.txt
+```
+
+> If you rename the file to the more conventional `requirements.txt`, use `pip install -r requirements.txt` instead.
+
+---
+
+## 17. Frontend Installation
+
+Move into the frontend directory:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the frontend:
+
+```bash
+npm run dev
+```
+
+The Vite development server normally runs at:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## 18. Backend Installation
+
+Create a virtual environment from the project root:
+
+```bash
+python -m venv venv
+```
+
+Activate it on macOS / Linux:
+
+```bash
+source venv/bin/activate
+```
+
+On Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirement.txt
+```
+
+Create:
+
+```text
+backend/.env
+```
+
+and add your Gemini API key.
+
+Start the FastAPI backend from the project root:
+
+```bash
+uvicorn backend.main:app --reload
+```
+
+Backend URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+Swagger API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## 19. Running the Full Application
+
+Open two terminals.
+
+### Terminal 1 — Backend
+
+From the project root:
+
+```bash
+source venv/bin/activate
+uvicorn backend.main:app --reload
+```
+
+### Terminal 2 — Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## 20. Testing the LangGraph Workflow
+
+A backend workflow test file is available:
+
+```text
+backend/test_workflow.py
+```
+
+Run it from the project root:
+
+```bash
+python -m backend.test_workflow
+```
+
+This directly tests:
+
+```text
+Scanner
+   ↓
+Refactor
+   ↓
+Documentation
+```
+
+without using the frontend.
+
+---
+
+## 21. Git Workflow
+
+The project has been developed using a clean incremental Git workflow.
+
+General rule:
+
+```text
+One File = One Commit
+```
+
+Example:
+
+```bash
+git add backend/agents/scanner.py
+git commit -m "feat: add scanner agent"
+git push
+```
+
+For generated scaffolding such as the initial Vite frontend, one setup commit is acceptable.
+
+---
+
+## 22. Current First-Version Features
+
+Implemented:
+
+- Python code input
+- `.py` file upload
+- Input validation
+- Scanner Agent
+- Structured audit report
+- Refactor Agent
+- Documentation Agent
+- LangGraph sequential workflow
+- Shared LangGraph state
+- Gemini integration
+- FastAPI backend
+- Pydantic request/response schemas
+- Reusable analyzer service
+- React + TypeScript frontend
+- Vite development environment
+- Oxlint
+- Dark developer-dashboard interface
+- Analysis timer
+- Estimated completion time
+- Actual completion duration
+- Score cards
+- Issue severity display
+- Result tabs
+- File-size validation
+- `.py` extension validation
+- CORS configuration
+- Swagger documentation
+- Error display
+- Copy controls
+
+---
+
+## 23. Current Limitations
+
+The current version has several known limitations:
+
+- Python only
+- One file per analysis
+- No multi-file repository analysis
+- No GitHub repository import
+- No real-time backend agent event streaming yet
+- No user authentication
+- No saved analysis history
+- No database
+- No automatic unit testing
+- No sandboxed code execution
+- No Ruff / Bandit / Pytest integration yet
+- Gemini quota can interrupt an analysis
+- Automatic model fallback is not yet implemented
+- Automatic API-key rotation is not yet implemented
+- The frontend timer is an estimate, not a backend prediction
+- Agent stage indicators are not yet driven by real backend events
+
+---
+
+## 24. Planned Improvements
+
+Possible future additions:
+
+- Real-time SSE agent status
+- WebSocket progress updates
+- Multiple Gemini API keys
+- Automatic Gemini API-key rotation
+- Automatic model fallback
+- Retry logic for `429` and `503`
+- Better rate-limit messages
+- Multi-file project analysis
+- ZIP project upload
+- GitHub repository scanning
+- JavaScript support
+- TypeScript support
+- Java support
+- Ruff integration
+- Bandit security scanning
+- Pytest integration
+- Sandboxed code execution
+- Before/after diff viewer
+- Download optimized `.py` file
+- Download audit report
+- Download generated README
+- Download optimized project ZIP
+- User authentication
+- Scan history
+- Database persistence
+- GitHub pull-request generation
+- Configurable production CORS origins
+
+---
+
+## 25. Final System Flow
+
+```text
+                         USER
+                           |
+                           v
+                React + TypeScript UI
+                           |
+                +----------+----------+
+                |                     |
+                v                     v
+           Paste Code            Upload .py
+                |                     |
+                +----------+----------+
+                           |
+                           v
+                       FastAPI
+                           |
+                           v
+                  Input Validation
+                           |
+                           v
+                   Analyzer Service
+                           |
+                           v
+                       LangGraph
+                           |
+                           v
+                    Scanner Agent
+                           |
+                           v
+                     Audit Report
+                           |
+                           v
+                    Refactor Agent
+                           |
+                           v
+                   Refactored Code
+                           |
+                           v
+                 Documentation Agent
+                           |
+                           v
+                  Final API Response
+                           |
+                           v
+                Developer Dashboard
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+       Scores            Issues          Results
+                                     Original Code
+                                     Refactored Code
+                                     Documentation
+```
+
+---
+
+## 26. Project Objective
+
+The objective of this project is to build a practical AI-powered software engineering tool that can transform raw Python code into a cleaner, safer, more maintainable, and better documented version.
+
+Instead of acting as a simple chatbot, the application behaves like an automated software engineering pipeline.
+
+Each agent has a focused responsibility, LangGraph controls the execution order, FastAPI provides the backend API, and the React frontend provides an interactive developer experience.
