@@ -60,9 +60,7 @@ export async function analyzeCode(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      code,
-    }),
+    body: JSON.stringify({ code }),
   });
 
   return handleResponse(response);
@@ -85,3 +83,4 @@ export async function analyzeFile(
 
   return handleResponse(response);
 }
+
