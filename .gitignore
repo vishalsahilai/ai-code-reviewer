@@ -12,10 +12,10 @@ venv/
 env/
 ENV/
 
-# Python environment variables
-.env
-.env.*
-!.env.example
+# Backend environment variables
+backend/.env
+backend/.env.*
+!backend/.env.example
 
 # Python tooling / cache
 .pytest_cache/
@@ -41,7 +41,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/build/
 
-# Vite environment files
+# Frontend environment variables
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
