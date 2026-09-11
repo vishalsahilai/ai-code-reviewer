@@ -1,6 +1,10 @@
 import { useState } from "react";
 
+import "./App.css";
+
 import AnalysisProgress from "./components/AnalysisProgress";
+import ResultsTabs from "./components/ResultsTabs";
+import ScoreCards from "./components/ScoreCards";
 
 import {
   analyzeCode,
@@ -8,17 +12,41 @@ import {
   type AnalysisResponse,
 } from "./services/api";
 
+type InputMode = "code" | "file";
+
 function App() {
-  const [mode, setMode] = useState<"code" | "file">("code");
+  const [mode, setMode] = useState<InputMode>("code");
+
   const [code, setCode] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [completedIn, setCompletedIn] = useState<number | null>(null);
+  const [result, setResult] =
+    useState<AnalysisResponse | null>(null);
 
-  const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [startedAt, setStartedAt] =
+    useState<number | null>(null);
+
+  const [completedIn, setCompletedIn] =
+    useState<number | null>(null);
+
+  const resetAnalysis = () => {
+    setResult(null);
+    setError("");
+    setStartedAt(null);
+    setCompletedIn(null);
+  };
+
+  const handleModeChange = (nextMode: InputMode) => {
+    if (loading) {
+      return;
+    }
+
+    setMode(nextMode);
+    resetAnalysis();
+  };
 
   const handleAnalyze = async () => {
     setError("");
@@ -26,12 +54,12 @@ function App() {
     setCompletedIn(null);
 
     if (mode === "code" && !code.trim()) {
-      setError("Please enter Python code.");
+      setError("Paste some Python code before starting the analysis.");
       return;
     }
 
     if (mode === "file" && !file) {
-      setError("Please select a Python file.");
+      setError("Choose a Python file before starting the analysis.");
       return;
     }
 
@@ -61,102 +89,238 @@ function App() {
       setError(
         err instanceof Error
           ? err.message
-          : "Something went wrong while analyzing the code.",
+          : "Something went wrong while analyzing your code.",
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleModeChange = (nextMode: "code" | "file") => {
-    if (loading) {
-      return;
-    }
-
-    setMode(nextMode);
-    setError("");
-    setResult(null);
-    setCompletedIn(null);
-    setStartedAt(null);
-  };
-
   return (
-    <main>
-      <header>
-        <h1>AI Code Reviewer</h1>
+    <div className="app-shell">
+      <div className="background-glow background-glow-one" />
+      <div className="background-glow background-glow-two" />
 
-        <p>
-          Analyze, refactor, and document Python code using AI agents.
-        </p>
-      </header>
+      <header className="topbar">
+        <div className="brand">
+          <div className="brand-mark">
+            <span>{"</>"}</span>
+          </div>
 
-      <section>
-        <div>
-          <button
-            type="button"
-            onClick={() => handleModeChange("code")}
-            disabled={loading}
-          >
-            Paste Code
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleModeChange("file")}
-            disabled={loading}
-          >
-            Upload .py File
-          </button>
+          <div>
+            <h1>CodeLens AI</h1>
+            <p>Multi-Agent Code Intelligence</p>
+          </div>
         </div>
 
-        {mode === "code" ? (
-          <div>
-            <h2>Python Code</h2>
+        <div className="topbar-status">
+          <span className="status-dot" />
+          AI Engine Online
+        </div>
+      </header>
 
-            <textarea
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-              placeholder="Paste your Python code here..."
-              rows={18}
-              disabled={loading}
-              spellCheck={false}
-            />
+      <main className="page-container">
+        <section className="hero">
+          <div className="hero-badge">
+            AI-Powered Developer Tool
           </div>
-        ) : (
-          <div>
-            <h2>Upload Python File</h2>
 
-            <input
-              type="file"
-              accept=".py"
-              disabled={loading}
-              onChange={(event) => {
-                const selectedFile =
-                  event.target.files?.[0] ?? null;
+          <h2>
+            Review. Refactor.
+            <span> Ship better code.</span>
+          </h2>
 
-                setFile(selectedFile);
-                setError("");
-                setResult(null);
-                setCompletedIn(null);
-                setStartedAt(null);
-              }}
-            />
+          <p>
+            A multi-agent Python code reviewer that audits security,
+            improves code quality, refactors implementation, and
+            automatically generates documentation.
+          </p>
 
-            {file && (
-              <p>
-                Selected file: <strong>{file.name}</strong>
-              </p>
-            )}
+          <div className="hero-pipeline">
+            <div>
+              <span>01</span>
+              Scanner
+            </div>
+
+            <div className="pipeline-line" />
+
+            <div>
+              <span>02</span>
+              Refactor
+            </div>
+
+            <div className="pipeline-line" />
+
+            <div>
+              <span>03</span>
+              Documentation
+            </div>
           </div>
-        )}
+        </section>
 
-        <button
-          type="button"
-          onClick={handleAnalyze}
-          disabled={loading}
-        >
-          {loading ? "Analyzing..." : "Analyze & Optimize"}
-        </button>
+        <section className="workspace-card">
+          <div className="workspace-header">
+            <div>
+              <p className="eyebrow">INPUT</p>
+              <h3>Analyze your Python code</h3>
+            </div>
+
+            <div className="mode-switch">
+              <button
+                type="button"
+                className={
+                  mode === "code" ? "mode-button active" : "mode-button"
+                }
+                onClick={() => handleModeChange("code")}
+                disabled={loading}
+              >
+                Paste Code
+              </button>
+
+              <button
+                type="button"
+                className={
+                  mode === "file" ? "mode-button active" : "mode-button"
+                }
+                onClick={() => handleModeChange("file")}
+                disabled={loading}
+              >
+                Upload .py
+              </button>
+            </div>
+          </div>
+
+          {mode === "code" ? (
+            <div className="editor-wrapper">
+              <div className="editor-toolbar">
+                <div className="window-controls">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+
+                <span className="editor-filename">
+                  main.py
+                </span>
+
+                <span className="editor-language">
+                  Python
+                </span>
+              </div>
+
+              <textarea
+                className="code-editor"
+                value={code}
+                onChange={(event) => {
+                  setCode(event.target.value);
+                  setError("");
+                }}
+                placeholder={`# Paste your Python code here
+
+def example():
+    print("Hello world")`}
+                disabled={loading}
+                spellCheck={false}
+              />
+
+              <div className="editor-footer">
+                <span>
+                  {code.split("\n").length} lines
+                </span>
+
+                <span>
+                  {code.length.toLocaleString()} characters
+                </span>
+              </div>
+            </div>
+          ) : (
+            <label
+              className={`upload-zone ${
+                file ? "has-file" : ""
+              }`}
+            >
+              <input
+                type="file"
+                accept=".py"
+                disabled={loading}
+                onChange={(event) => {
+                  const selectedFile =
+                    event.target.files?.[0] ?? null;
+
+                  setFile(selectedFile);
+                  resetAnalysis();
+                }}
+              />
+
+              <div className="upload-icon">
+                {file ? "✓" : "↑"}
+              </div>
+
+              {file ? (
+                <>
+                  <h4>{file.name}</h4>
+
+                  <p>
+                    {(file.size / 1024).toFixed(1)} KB
+                    · Python source file
+                  </p>
+
+                  <span className="upload-change">
+                    Click to choose another file
+                  </span>
+                </>
+              ) : (
+                <>
+                  <h4>Drop your Python file here</h4>
+
+                  <p>
+                    or click to browse your computer
+                  </p>
+
+                  <span className="upload-requirement">
+                    .py files only · Max 1 MB
+                  </span>
+                </>
+              )}
+            </label>
+          )}
+
+          {error && (
+            <div className="error-banner">
+              <div className="error-icon">!</div>
+
+              <div>
+                <strong>Analysis failed</strong>
+                <p>{error}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="analyze-action">
+            <button
+              type="button"
+              className="analyze-button"
+              onClick={handleAnalyze}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="button-spinner" />
+                  Analyzing your code...
+                </>
+              ) : (
+                <>
+                  <span className="button-icon">✦</span>
+                  Analyze & Optimize
+                </>
+              )}
+            </button>
+
+            <p>
+              Your code is analyzed as text and is never executed.
+            </p>
+          </div>
+        </section>
 
         <AnalysisProgress
           isAnalyzing={loading}
@@ -164,109 +328,64 @@ function App() {
           startedAt={startedAt}
           completedIn={completedIn}
         />
-      </section>
 
-      {error && (
-        <section>
-          <h3>Analysis Error</h3>
-          <p>{error}</p>
-        </section>
-      )}
+        {result && (
+          <>
+            <section className="analysis-heading">
+              <div>
+                <p className="eyebrow">
+                  ANALYSIS COMPLETE
+                </p>
 
-      {result && (
-        <section>
-          <h2>Analysis Complete</h2>
+                <h3>
+                  Code Intelligence Report
+                </h3>
 
-          <section>
-            <h3>Code Quality Score</h3>
-            <p>{result.audit_report.score}/100</p>
-          </section>
+                <p>
+                  AI agents completed security, quality,
+                  performance, and maintainability review.
+                </p>
+              </div>
 
-          <section>
-            <h3>Scores</h3>
+              {completedIn !== null && (
+                <div className="completed-chip">
+                  Completed in {completedIn.toFixed(1)}s
+                </div>
+              )}
+            </section>
 
-            <p>
-              Security: {result.audit_report.security_score}/100
-            </p>
+            <ScoreCards report={result.audit_report} />
 
-            <p>
-              Performance:{" "}
-              {result.audit_report.performance_score}/100
-            </p>
-
-            <p>
-              Maintainability:{" "}
-              {result.audit_report.maintainability_score}/100
-            </p>
-
-            <p>
-              Style: {result.audit_report.style_score}/100
-            </p>
-          </section>
-
-          <section>
-            <h3>Summary</h3>
-            <p>{result.audit_report.summary}</p>
-          </section>
-
-          <section>
-            <h3>Issues</h3>
-
-            {result.audit_report.issues.length === 0 ? (
-              <p>No issues found.</p>
-            ) : (
-              result.audit_report.issues.map((issue, index) => (
-                <article key={`${issue.title}-${index}`}>
-                  <h4>
-                    {issue.severity.toUpperCase()} —{" "}
-                    {issue.title}
-                  </h4>
-
-                  <p>
-                    <strong>Type:</strong> {issue.type}
+            <section className="summary-card">
+              <div className="section-title-row">
+                <div>
+                  <p className="eyebrow">
+                    AI SUMMARY
                   </p>
 
-                  {issue.line !== null && (
-                    <p>
-                      <strong>Line:</strong> {issue.line}
-                    </p>
-                  )}
+                  <h3>
+                    Overall assessment
+                  </h3>
+                </div>
+              </div>
 
-                  <p>{issue.description}</p>
+              <p className="summary-text">
+                {result.audit_report.summary}
+              </p>
+            </section>
 
-                  <p>
-                    <strong>Recommendation:</strong>{" "}
-                    {issue.recommendation}
-                  </p>
-                </article>
-              ))
-            )}
-          </section>
+            <ResultsTabs result={result} />
+          </>
+        )}
+      </main>
 
-          <section>
-            <h3>Original Code</h3>
-
-            <pre>
-              <code>{result.original_code}</code>
-            </pre>
-          </section>
-
-          <section>
-            <h3>Refactored Code</h3>
-
-            <pre>
-              <code>{result.refactored_code}</code>
-            </pre>
-          </section>
-
-          <section>
-            <h3>Documentation</h3>
-
-            <pre>{result.documentation}</pre>
-          </section>
-        </section>
-      )}
-    </main>
+      <footer>
+        <span>CodeLens AI</span>
+        <span>
+          Scanner → Refactor → Documentation
+        </span>
+      </footer>
+    </div>
   );
 }
 
